@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Display</title>
+</head>
+<body>
+<h1>Data from API</h1>
+<ul id="post-list"></ul>
+
+<script>
+    async function fetchData() {
+        try {
+            const response = await fetch('http://localhost:3000/posts'); // Ganti dengan URL API Anda
+            const data = await response.json();
+            const postList = document.getElementById('post-list');
+
+            data.forEach(post => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                        <h3>${post.name}</h3>
+                        <p>${post.isi}</p>
+                        <p>Created at: ${post.created_at}</p>
+                    `;
+                postList.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    fetchData();
+</script>
+</body>
+</html>
