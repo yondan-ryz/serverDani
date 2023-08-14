@@ -90,6 +90,7 @@ app.put('/pastor/:id', async (req, res) => {
 //     }
 // });
 
+//kategori pendidikan
 app.post('/pastor', async (req, res) => {
     const { name, content, token } = req.body;
 
@@ -104,6 +105,78 @@ app.post('/pastor', async (req, res) => {
         const client = await pool.connect();
         const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
         const values = [name, content, 'Pendidikan', false]; // Set default category and is_completed
+        const result = await client.query(query, values);
+        const insertedPost = result.rows[0];
+        client.release();
+        res.json(insertedPost);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat menyimpan data');
+    }
+});
+
+app.post('/pastor/keluarga', async (req, res) => {
+    const { name, content, token } = req.body;
+
+    // Ganti dengan token yang benar
+    const validToken = "dani";
+
+    try {
+        if (token !== validToken) {
+            return res.status(403).send('Akses ditolak');
+        }
+
+        const client = await pool.connect();
+        const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, content, 'Keluarga', false]; // Set default category and is_completed
+        const result = await client.query(query, values);
+        const insertedPost = result.rows[0];
+        client.release();
+        res.json(insertedPost);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat menyimpan data');
+    }
+});
+
+app.post('/pastor/percintaan', async (req, res) => {
+    const { name, content, token } = req.body;
+
+    // Ganti dengan token yang benar
+    const validToken = "dani";
+
+    try {
+        if (token !== validToken) {
+            return res.status(403).send('Akses ditolak');
+        }
+
+        const client = await pool.connect();
+        const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, content, 'Percintaan', false]; // Set default category and is_completed
+        const result = await client.query(query, values);
+        const insertedPost = result.rows[0];
+        client.release();
+        res.json(insertedPost);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat menyimpan data');
+    }
+});
+
+app.post('/pastor/pekerjaan', async (req, res) => {
+    const { name, content, token } = req.body;
+
+    // Ganti dengan token yang benar
+    const validToken = "dani";
+
+    try {
+        if (token !== validToken) {
+            return res.status(403).send('Akses ditolak');
+        }
+
+        const client = await pool.connect();
+        const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, content, 'Pekerjaan', false]; // Set default category and is_completed
         const result = await client.query(query, values);
         const insertedPost = result.rows[0];
         client.release();
