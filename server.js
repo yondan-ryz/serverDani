@@ -45,6 +45,25 @@ app.get('/pastor/:id', async (req, res) => {
     }
 });
 
+app.put('/pastor/:id', async (req, res) => {
+    const postId = req.params.id;
+
+    try {
+        const { is_completed } = req.body;
+
+        const result = await pool.query('UPDATE pastor SET is_completed = $1 WHERE id = $2', [is_completed, postId]);
+
+        if (result.rowCount > 0) {
+            res.json({ message: 'Status is_completed berhasil diperbarui' });
+        } else {
+            res.status(404).json({ message: 'Post tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat memperbarui status is_completed');
+    }
+});
+
 app.post('/pastor', async (req, res) => {
     const { name, content, category, is_completed  } = req.body;
 
