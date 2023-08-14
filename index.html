@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contoh Tampilan API</title>
+</head>
+<body>
+<h1>Daftar Posting</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nama</th>
+        <th>Isi</th>
+        <th>Tanggal Dibuat</th>
+    </tr>
+    </thead>
+    <tbody id="data-body">
+    <!-- Data dari API akan ditampilkan di sini -->
+    </tbody>
+</table>
+
+<script>
+    fetch('http://localhost:3000/posts')
+        .then(response => response.json())
+        .then(data => {
+            const dataBody = document.getElementById('data-body');
+            data.forEach(post => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+          <td>${post.id_post}</td>
+          <td>${post.name}</td>
+          <td>${post.isi}</td>
+          <td>${post.created_at}</td>
+        `;
+                dataBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+</body>
+</html>

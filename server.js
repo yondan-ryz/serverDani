@@ -1,3 +1,5 @@
+
+const cors = require('cors'); // Import library CORS
 const pg = require('pg');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -6,6 +8,7 @@ const { Pool, Client } = pg;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(bodyParser.json());
 
 // Ganti dengan URL koneksi PostgreSQL dari ElephantSQL
@@ -41,23 +44,6 @@ app.post('/posts', async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat menyimpan data');
-    }
-});
-
-app.post('/add-data', (req, res) => {
-    const { name, isi } = req.body;
-    const newData = { name, isi, type: 'user' };
-    posts.push(newData);
-    res.status(201).json(newData);
-});
-
-// Endpoint untuk melihat data oleh admin
-app.get('/view-data', (req, res) => {
-    const type = req.query.type;
-    if (type === 'admin') {
-        res.json(posts);
-    } else {
-        res.status(403).send('Anda tidak memiliki izin untuk melihat data');
     }
 });
 
