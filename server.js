@@ -26,6 +26,16 @@ app.get('/pastor', async (req, res) => {
     }
 });
 
+app.get('/pastor/completed', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat mengambil data');
+    }
+});
+
 
 // Fungsi untuk mendapatkan post berdasarkan ID
 app.get('/pastor/:id', async (req, res) => {
