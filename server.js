@@ -18,7 +18,7 @@ const pastor = [];
 
 app.get('/pastor', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM pastor');
+        const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
         res.json(result.rows);
     } catch (error) {
         console.error('Error:', error);
