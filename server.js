@@ -75,10 +75,10 @@ app.put('/pastor/:id', async (req, res) => {
 });
 
 app.post('/pastor', async (req, res) => {
-    const { name, content, category, is_completed  } = req.body;
+    const { name, content, category, is_completed } = req.body;
 
     try {
-        await pool.query('INSERT INTO pastor (name, isi) VALUES ($1, $2, $3, $4)', [name, content, category, is_completed]);
+        await pool.query('INSERT INTO pastor (name, isi, category, is_completed) VALUES ($1, $2, $3, $4)', [name, content, category, is_completed]);
         res.json({ message: 'Post berhasil disimpan' });
     } catch (error) {
         console.error('Error:', error);
