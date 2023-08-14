@@ -75,11 +75,15 @@ app.put('/pastor/:id', async (req, res) => {
 });
 
 app.post('/pastor', async (req, res) => {
-    const { name, content, category, is_completed } = req.body;
-
+    const { name, content } = req.body;
     try {
-        await pool.query('INSERT INTO pastor (name, isi, category, is_completed) VALUES ($1, $2, $3, $4)', [name, content, category, is_completed]);
-        res.json({ message: 'Post berhasil disimpan' });
+        const client = await pool.connect();
+        const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, content, 'Pendidikan', false]; // Set default category and is_completed
+        const result = await client.query(query, values);
+        const insertedPost = result.rows[0];
+        client.release();
+        res.json(insertedPost);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat menyimpan data');
