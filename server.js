@@ -1,14 +1,58 @@
 const cors = require('cors'); // Import library CORS
 const pg = require('pg');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool, Client } = pg;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+const secretKey = 'your_secret_key'; // Ganti dengan kunci rahasia yang kuat
+
+const users = [
+    {
+        username: 'admin',
+        password: 'admin'
+    }
+];
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const user = users.find(user => user.username === username);
+
+    if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (user.password !== password) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ username }, secretKey, { expiresIn: '1h' });
+
+    res.json({ token });
+});
+
+app.get('/protected', (req, res) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token not provided' });
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+
+        res.json({ message: 'Access granted to protected route', user: decoded.username });
+    });
+});
 
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
 const pool = new Pool({ connectionString });
