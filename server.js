@@ -52,7 +52,7 @@ app.post('/login', async (req, res) => {
 
 app.put('/update-profile/:id', async (req, res) => {
     const userId = req.params.id;
-    const { newUsername, newPassword } = req.body;
+    const { oldPassword, newUsername, newPassword } = req.body;
 
     try {
         const client = await pool.connect();
@@ -64,6 +64,12 @@ app.put('/update-profile/:id', async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Verify old password
+        const validPassword = await bcrypt.compare(oldPassword, user.password);
+        if (!validPassword) {
+            return res.status(400).json({ message: 'Old password is incorrect' });
         }
 
         // Update Username if provided
