@@ -3,6 +3,7 @@ const pg = require('pg');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 const { Pool, Client } = pg;
 
 const app = express();
@@ -34,8 +35,9 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // WARNING: Insecure method, not recommended for production
-        if (password === user.password) {
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (passwordMatch) {
             const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
             res.cookie('token', token, { maxAge: 3600000 });
             res.json({ token });
@@ -47,6 +49,34 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Terjadi kesalahan saat proses login');
     }
 });
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//
+//     try {
+//         const client = await pool.connect();
+//         const query = 'SELECT * FROM users WHERE username = $1';
+//         const result = await client.query(query, [username]);
+//         const user = result.rows[0];
+//         client.release();
+//
+//         if (!user) {
+//             return res.status(401).json({ message: 'Invalid credentials' });
+//         }
+//
+//         // WARNING: Insecure method, not recommended for production
+//         if (password === user.password) {
+//             const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+//             res.cookie('token', token, { maxAge: 3600000 });
+//             res.json({ token });
+//         } else {
+//             res.status(401).json({ message: 'Invalid credentials' });
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).send('Terjadi kesalahan saat proses login');
+//     }
+// });
 
 app.get('/pastor', async (req, res) => {
     try {
