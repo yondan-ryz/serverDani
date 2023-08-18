@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const secretKey = 'your_secret_key'; // Ganti dengan kunci rahasia yang kuat
+const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
 
 
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
@@ -49,34 +49,6 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Terjadi kesalahan saat proses login');
     }
 });
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-//
-//     try {
-//         const client = await pool.connect();
-//         const query = 'SELECT * FROM users WHERE username = $1';
-//         const result = await client.query(query, [username]);
-//         const user = result.rows[0];
-//         client.release();
-//
-//         if (!user) {
-//             return res.status(401).json({ message: 'Invalid credentials' });
-//         }
-//
-//         // WARNING: Insecure method, not recommended for production
-//         if (password === user.password) {
-//             const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
-//             res.cookie('token', token, { maxAge: 3600000 });
-//             res.json({ token });
-//         } else {
-//             res.status(401).json({ message: 'Invalid credentials' });
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//         res.status(500).send('Terjadi kesalahan saat proses login');
-//     }
-// });
 
 app.get('/pastor', async (req, res) => {
     try {
