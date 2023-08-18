@@ -21,17 +21,33 @@ const pool = new Pool({ connectionString });
 
 const pastor = [];
 
-const validApiKey = 'dani1234'; // Kunci API yang valid
+const validApiKey = 'dani1234';
+let kiloin = ''; // Inisialisasi kiloin dengan nilai awal kosong
 
-// Middleware untuk memverifikasi kunci API
+
+// Fungsi yang dipanggil saat server dimuat
+function serverStart() {
+    const server = http.createServer((req, res) => {
+        // Tanpa menggunakan autentikasi API key
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(`Nilai kiloin: ${kiloin}`);
+    });
+    
+    // Setelah server dimulai, baru definisikan nilai kiloin
+    kiloin = dani1234; // Ganti dengan nilai yang sesuai
+}
+
+// Panggil fungsi untuk memulai server
+serverStart();
 function authenticateApiKey(req, res, next) {
-    const apiKey = req.headers['x-api-key'];
+    const apiKey = kiloin;
     if (apiKey === validApiKey) {
         next();
     } else {
         res.status(403).json({ message: 'Invalid API key' });
     }
 }
+
 
 // Middleware autentikasi JWT
 
