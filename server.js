@@ -34,16 +34,7 @@ function authenticateApiKey(req, res, next) {
 }
 
 // Middleware autentikasi JWT
-function authenticateToken(req, res, next) {
-    const token = req.headers['authorization'];
-    if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, secretKey, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-}
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -176,7 +167,7 @@ app.put('/pastor/:id', authenticateApiKey, async (req, res) => {
 });
 
 //kategori pendidikan
-app.post('/pastor', async (req, res) => {
+app.post('/pastor', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
     // Ganti dengan token yang benar
@@ -200,7 +191,7 @@ app.post('/pastor', async (req, res) => {
     }
 });
 
-app.post('/pastor/keluarga', async (req, res) => {
+app.post('/pastor/keluarga', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
     // Ganti dengan token yang benar
@@ -224,7 +215,7 @@ app.post('/pastor/keluarga', async (req, res) => {
     }
 });
 
-app.post('/pastor/percintaan', async (req, res) => {
+app.post('/pastor/percintaan', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
     // Ganti dengan token yang benar
@@ -248,7 +239,7 @@ app.post('/pastor/percintaan', async (req, res) => {
     }
 });
 
-app.post('/pastor/pekerjaan', async (req, res) => {
+app.post('/pastor/pekerjaan', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
     // Ganti dengan token yang benar
@@ -272,7 +263,7 @@ app.post('/pastor/pekerjaan', async (req, res) => {
     }
 });
 
-app.delete('/pastor/:id', async (req, res) => {
+app.delete('/pastor/:id', authenticateApiKey, async (req, res) => {
     const postId = req.params.id;
 
     try {
