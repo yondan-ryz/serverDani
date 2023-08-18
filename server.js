@@ -50,6 +50,43 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.put('/update-profile/:id', async (req, res) => {
+    const userId = req.params.id;
+    const { newUsername, newPassword } = req.body;
+
+    try {
+        const client = await pool.connect();
+
+        // Check if the user exists
+        const userQuery = 'SELECT * FROM users WHERE id = $1';
+        const userResult = await client.query(userQuery, [userId]);
+        const user = userResult.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update Username if provided
+        if (newUsername) {
+            const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE id = $2';
+            await client.query(updateUsernameQuery, [newUsername, userId]);
+        }
+
+        // Update Password if provided
+        if (newPassword) {
+            const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+            const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE id = $2';
+            await client.query(updatePasswordQuery, [hashedNewPassword, userId]);
+        }
+
+        client.release();
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('An error occurred while updating profile');
+    }
+});
+
 app.get('/pastor', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
