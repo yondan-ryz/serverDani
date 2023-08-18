@@ -21,6 +21,30 @@ const pool = new Pool({ connectionString });
 
 const pastor = [];
 
+const validApiKey = 'dani1234'; // Kunci API yang valid
+
+// Middleware untuk memverifikasi kunci API
+function authenticateApiKey(req, res, next) {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey === validApiKey) {
+        next();
+    } else {
+        res.status(403).json({ message: 'Invalid API key' });
+    }
+}
+
+// Middleware autentikasi JWT
+function authenticateToken(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -93,7 +117,7 @@ app.put('/update-profile/:id', async (req, res) => {
     }
 });
 
-app.get('/pastor', async (req, res) => {
+app.get('/pastor', authenticateApiKey, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
         res.json(result.rows);
@@ -103,7 +127,7 @@ app.get('/pastor', async (req, res) => {
     }
 });
 
-app.get('/pastor/completed', async (req, res) => {
+app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
         res.json(result.rows);
@@ -115,7 +139,7 @@ app.get('/pastor/completed', async (req, res) => {
 
 
 // Fungsi untuk mendapatkan post berdasarkan ID
-app.get('/pastor/:id', async (req, res) => {
+app.get('/pastor/:id', authenticateApiKey, async (req, res) => {
     const postId = req.params.id;
 
     try {
@@ -132,7 +156,7 @@ app.get('/pastor/:id', async (req, res) => {
     }
 });
 
-app.put('/pastor/:id', async (req, res) => {
+app.put('/pastor/:id', authenticateApiKey, async (req, res) => {
     const postId = req.params.id;
 
     try {
