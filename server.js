@@ -4,26 +4,27 @@ const jwt = require('jsonwebtoken');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool, Client } = pg;
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
+const validUsername = 'admin';
+const validPassword = 'admin';
+const secretKey = 'your-secret-key'; // Ganti dengan kunci rahasia yang kuat
 
-const secretKey = 'your_secret_key'; // Ganti dengan kunci rahasia yang kuat
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    // ... (lakukan validasi pengguna dan password di sini)
-
-    // Misalnya, kita akan mengasumsikan jika username dan password adalah "admin"
-    if (username === "admin" && password === "admin") {
+    if (username === validUsername && password === validPassword) {
         const token = jwt.sign({ username }, secretKey, { expiresIn: '1h' });
 
         res.cookie('token', token, { maxAge: 3600000 }); // Simpan token dalam cookie selama 1 jam
 
-        res.json({ token });
+        res.json({ message: 'Login successful', token });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
     }
