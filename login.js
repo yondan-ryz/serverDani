@@ -12,6 +12,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const secretKey = 'your_secret_key'; // Ganti dengan kunci rahasia yang kuat
+
+
+
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
