@@ -58,7 +58,7 @@ app.put('/update-profile/:id', async (req, res) => {
         const client = await pool.connect();
 
         // Check if the user exists
-        const userQuery = 'SELECT * FROM users WHERE id = $1';
+        const userQuery = 'SELECT * FROM users WHERE alt_id = $1';
         const userResult = await client.query(userQuery, [userId]);
         const user = userResult.rows[0];
 
