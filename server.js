@@ -21,33 +21,28 @@ const pool = new Pool({ connectionString });
 
 const pastor = [];
 
-const validApiKey = 'dani1234';
-let kiloin = ''; // Inisialisasi kiloin dengan nilai awal kosong
+const validApiKey = 'dani1234'; // Kunci API yang valid
 
+// Middleware untuk memverifikasi kunci API
 
-// Fungsi yang dipanggil saat server dimuat
-function serverStart() {
-    const server = http.createServer((req, res) => {
-        // Tanpa menggunakan autentikasi API key
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(`Nilai kiloin: ${kiloin}`);
-    });
-    
-    // Setelah server dimulai, baru definisikan nilai kiloin
-    kiloin = dani1234; // Ganti dengan nilai yang sesuai
+function blockPostman(req, res, next) {
+    const userAgent = req.get('user-agent');
+    if (userAgent && userAgent.includes('Postman')) {
+        return res.status(403).json({ message: 'Waduh, mau lihat data?' });
+    }
+    next();
 }
 
-// Panggil fungsi untuk memulai server
-serverStart();
+app.use(blockPostman);
+
 function authenticateApiKey(req, res, next) {
-    const apiKey = kiloin;
+    const apiKey = req.headers['x-api-key'];
     if (apiKey === validApiKey) {
         next();
     } else {
         res.status(403).json({ message: 'Invalid API key' });
     }
 }
-
 
 // Middleware autentikasi JWT
 
@@ -88,7 +83,7 @@ app.put('/update-profile/:id', async (req, res) => {
     try {
         const client = await pool.connect();
 
-        // Check if the user exists
+// Check if the user exists
         const userQuery = 'SELECT * FROM users WHERE alt_id = $1';
         const userResult = await client.query(userQuery, [userId]);
         const user = userResult.rows[0];
@@ -97,19 +92,19 @@ app.put('/update-profile/:id', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Verify old password
+// Verify old password
         const validPassword = await bcrypt.compare(oldPassword, user.password);
         if (!validPassword) {
             return res.status(400).json({ message: 'Old password is incorrect' });
         }
 
-        // Update Username if provided
+// Update Username if provided
         if (newUsername) {
             const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE id = $2';
             await client.query(updateUsernameQuery, [newUsername, userId]);
         }
 
-        // Update Password if provided
+// Update Password if provided
         if (newPassword) {
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE id = $2';
@@ -186,7 +181,7 @@ app.put('/pastor/:id', authenticateApiKey, async (req, res) => {
 app.post('/pastor', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
-    // Ganti dengan token yang benar
+// Ganti dengan token yang benar
     const validToken = "dani";
 
     try {
@@ -210,7 +205,7 @@ app.post('/pastor', authenticateApiKey, async (req, res) => {
 app.post('/pastor/keluarga', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
-    // Ganti dengan token yang benar
+// Ganti dengan token yang benar
     const validToken = "dani";
 
     try {
@@ -234,7 +229,7 @@ app.post('/pastor/keluarga', authenticateApiKey, async (req, res) => {
 app.post('/pastor/percintaan', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
-    // Ganti dengan token yang benar
+// Ganti dengan token yang benar
     const validToken = "dani";
 
     try {
@@ -258,7 +253,7 @@ app.post('/pastor/percintaan', authenticateApiKey, async (req, res) => {
 app.post('/pastor/pekerjaan', authenticateApiKey, async (req, res) => {
     const { name, content, token } = req.body;
 
-    // Ganti dengan token yang benar
+// Ganti dengan token yang benar
     const validToken = "dani";
 
     try {
