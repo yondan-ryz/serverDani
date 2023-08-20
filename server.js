@@ -26,8 +26,8 @@ const validApiKey = 'dani1234'; // Kunci API yang valid
 // Middleware untuk memverifikasi kunci API
 
 function blockPostman(req, res, next) {
-    const userAgent = req.get('user-agent');
-    if (userAgent && userAgent.includes('Postman')) {
+    const postmanToken = req.get('postman-token');
+    if (postmanToken) {
         return res.status(403).json({ message: 'Waduh, mau lihat data?' });
     }
     next();
