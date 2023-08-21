@@ -49,7 +49,7 @@ function blockPostman(req, res, next) {
 app.use(blockPostman);
 
 function authenticateApiKey(req, res, next) {
-    const apiKey = req.headers['x-api-key'];
+    const apiKey = req.headers['x-api-key'] + '3';
     if (apiKey === validApiKey) {
         next();
     } else {
