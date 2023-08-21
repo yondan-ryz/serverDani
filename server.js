@@ -24,6 +24,19 @@ const pastor = [];
 const validApiKey = 'dani1234'; // Kunci API yang valid
 
 // Middleware untuk memverifikasi kunci API
+const allowedOrigins = ['https://ok-pastor.vercel.app']; // Ganti dengan domain Anda yang diizinkan
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Akses ditolak oleh CORS'));
+        }
+    },
+};
+
+app.use(cors(corsOptions));
 
 function blockPostman(req, res, next) {
     const postmanToken = req.get('postman-token');
