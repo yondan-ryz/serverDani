@@ -113,14 +113,14 @@ app.put('/update-profile/:id', async (req, res) => {
 
 // Update Username if provided
         if (newUsername) {
-            const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE id = $2';
+            const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE alt_id = $2';
             await client.query(updateUsernameQuery, [newUsername, userId]);
         }
 
 // Update Password if provided
         if (newPassword) {
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-            const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE id = $2';
+            const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE alt_id = $2';
             await client.query(updatePasswordQuery, [hashedNewPassword, userId]);
         }
 
