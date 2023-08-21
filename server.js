@@ -14,6 +14,14 @@ app.use(bodyParser.json());
 
 const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
 
+const cacheControlHeader = req.headers['cache-control'];
+let nilai;
+
+if (cacheControlHeader) {
+    nilai = '3';
+} else {
+    nilai = '0';
+}
 
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
 const pool = new Pool({ connectionString });
@@ -21,7 +29,7 @@ const pool = new Pool({ connectionString });
 
 const pastor = [];
 
-const validApiKey = 'dani1234'; // Kunci API yang valid
+const validApiKey = 'dani12343'; // Kunci API yang valid
 
 // Middleware untuk memverifikasi kunci API
 const allowedOrigins = ['https://ok-pastor.vercel.app','http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
@@ -49,8 +57,8 @@ function blockPostman(req, res, next) {
 app.use(blockPostman);
 
 function authenticateApiKey(req, res, next) {
-    const apiKey = req.headers['x-api-key'] + '3';
-    if (apiKey === validApiKey) {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey + nilai === validApiKey) {
         next();
     } else {
         res.status(403).json({ message: 'Invalid API key' });
