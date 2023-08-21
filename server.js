@@ -304,6 +304,18 @@ app.delete('/pastor/:id', authenticateApiKey, async (req, res) => {
     }
 });
 
+app.get('/announcements', async (req, res) => {
+    try {
+        const client = await pool.connect();
+        const result = await client.query('SELECT * FROM announcements');
+        client.release();
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error executing query', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
