@@ -54,6 +54,7 @@ const validApiKey = 'dani12343'; // Kunci API yang valid
 function authenticateApiKey(req, res, next) {
     const apiKey = req.headers['x-api-key'];
     if (apiKey + req.nilai === validApiKey) {
+        console.log(apiKey + req.nilai)
         next();
     } else {
         res.status(403).json({ message: 'Invalid API key' });
