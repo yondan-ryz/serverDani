@@ -9,9 +9,25 @@ const { Pool, Client } = pg;
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+app.use(cors());
+app.use(bodyParser.json());
+
+const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
+
+
+const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
+const pool = new Pool({ connectionString });
+
+
+const pastor = [];
+
+const validApiKey = 'dani12343'; // Kunci API yang valid
+
+// Middleware untuk memverifikasi kunci API
+const allowedOrigins = ['https://ok-pastor.vercel.app','http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
+
 const corsOptions = {
     origin: function (origin, callback) {
-        const allowedOrigins = ['https://ok-pastor.vercel.app', 'http://localhost:9000'];
         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         } else {
@@ -21,9 +37,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
-
-const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
 
 function blockPostman(req, res, next) {
     const postmanToken = req.get('postman-token');
@@ -35,33 +48,14 @@ function blockPostman(req, res, next) {
 
 app.use(blockPostman);
 
-app.use(function (req, res, next) {
-    const cacheControlHeader = req.headers['cache-control'];
-    let nilai;
-
-    if (cacheControlHeader) {
-        nilai = '3';
-    } else {
-        nilai = '0';
-    }
-
-    req.nilai = nilai; // Menambahkan nilai ke req untuk digunakan di middleware selanjutnya
-    next();
-});
-
-const validApiKey = 'dani12343'; // Kunci API yang valid
-
 function authenticateApiKey(req, res, next) {
     const apiKey = req.headers['x-api-key'];
-    if (apiKey + req.nilai === validApiKey) {
-        console.log(apiKey + req.nilai)
+    if (apiKey === validApiKey) {
         next();
     } else {
         res.status(403).json({ message: 'Invalid API key' });
     }
 }
-
-// Routes dan middleware lainnya
 
 // Middleware autentikasi JWT
 
