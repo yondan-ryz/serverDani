@@ -21,7 +21,7 @@ const pool = new Pool({ connectionString });
 
 const pastor = [];
 
-const validApiKey = 'dani12343'; // Kunci API yang valid
+const validApiKey = 'dani1234'; // Kunci API yang valid
 
 // Middleware untuk memverifikasi kunci API
 const allowedOrigins = ['https://ok-pastor.vercel.app','http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
