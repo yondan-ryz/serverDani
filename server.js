@@ -92,11 +92,12 @@ app.post('/login', async (req, res) => {
 app.put('/update-profile/:id', async (req, res) => {
     const userId = req.params.id;
     const { oldPassword, newUsername, newPassword } = req.body;
+    let client;
 
     try {
-        const client = await pool.connect();
+        client = await pool.connect();
 
-// Check if the user exists
+        // Check if the user exists
         const userQuery = 'SELECT * FROM users WHERE alt_id = $1';
         const userResult = await client.query(userQuery, [userId]);
         const user = userResult.rows[0];
@@ -105,32 +106,36 @@ app.put('/update-profile/:id', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-// Verify old password
+        // Verify old password
         const validPassword = await bcrypt.compare(oldPassword, user.password);
         if (!validPassword) {
             return res.status(400).json({ message: 'Old password is incorrect' });
         }
 
-// Update Username if provided
+        // Update Username if provided
         if (newUsername) {
             const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE alt_id = $2';
             await client.query(updateUsernameQuery, [newUsername, userId]);
         }
 
-// Update Password if provided
+        // Update Password if provided
         if (newPassword) {
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE alt_id = $2';
             await client.query(updatePasswordQuery, [hashedNewPassword, userId]);
         }
 
-        client.release();
         res.json({ message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('An error occurred while updating profile');
+    } finally {
+        if (client) {
+            client.release(); // Selalu pastikan koneksi dilepaskan, bahkan jika terjadi kesalahan.
+        }
     }
 });
+
 
 app.get('/pastor', authenticateApiKey, async (req, res) => {
     try {
