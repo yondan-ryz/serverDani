@@ -24,7 +24,7 @@ const pastor = [];
 const validApiKey = 'dani1234'; // Kunci API yang valid
 
 // Middleware untuk memverifikasi kunci API
-const allowedOrigins = ['https://ok-pastor.vercel.app','http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
+const allowedOrigins = ['https://ok-pastor.vercel.app', 'https://ok-pastor-frontend.vercel.app', 'http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
 
 const corsOptions = {
     origin: function (origin, callback) {
