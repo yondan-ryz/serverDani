@@ -1,4 +1,2 @@
-[[redirects]]
-  from = "/*"
-  to = "/server.js"
-  status = 200
+[build]
+  command = "node server.js"
