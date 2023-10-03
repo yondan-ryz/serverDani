@@ -148,12 +148,15 @@ app.get('/pastor', authenticateApiKey, async (req, res) => {
 });
 
 app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
+    const client = await pool.connect();
     try {
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
         res.json(result.rows);
+        client.end();
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat mengambil data');
+        client.end();
     }
 });
 
