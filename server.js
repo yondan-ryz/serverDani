@@ -139,7 +139,9 @@ app.put('/update-profile/:id', async (req, res) => {
 
 app.get('/pastor', authenticateApiKey, async (req, res) => {
     try {
+        const client = await pool.connect();
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
+        client.release();
         res.json(result.rows);
     } catch (error) {
         console.error('Error:', error);
@@ -148,15 +150,14 @@ app.get('/pastor', authenticateApiKey, async (req, res) => {
 });
 
 app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
-    const client = await pool.connect();
     try {
+        const client = await pool.connect();
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
+        client.release();
         res.json(result.rows);
-        client.end();
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat mengambil data');
-        client.end();
     }
 });
 
@@ -166,7 +167,9 @@ app.get('/pastor/:id', authenticateApiKey, async (req, res) => {
     const postId = req.params.id;
 
     try {
+        const client = await pool.connect();
         const result = await pool.query('SELECT * FROM pastor WHERE id = $1', [postId]);
+        client.release();
 
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
