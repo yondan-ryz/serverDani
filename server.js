@@ -1,10 +1,10 @@
-const cors = require('cors'); // Import library CORS
+const cors = require('cors');
 const pg = require('pg');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const { Pool, Client } = pg;
+const { Pool } = pg;
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -13,18 +13,14 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
-
+const jwtSecretKey = 'jwtsecret'; // Ganti dengan kunci rahasia JWT yang kuat
 
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
 const pool = new Pool({ connectionString });
 
-
-const pastor = [];
-
 const validApiKey = 'dani1234'; // Kunci API yang valid
 
-// Middleware untuk memverifikasi kunci API
-const allowedOrigins = ['https://ok-pastor.vercel.app', 'https://ok-pastor-frontend.vercel.app', 'http://localhost:9000']; // Ganti dengan domain Anda yang diizinkan
+const allowedOrigins = ['https://ok-pastor.vercel.app', 'https://ok-pastor-frontend.vercel.app', 'http://localhost:9000'];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -38,15 +34,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-function blockPostman(req, res, next) {
-    const postmanToken = req.get('postman-token');
-    if (postmanToken) {
-        return res.status(403).json({ message: 'Waduh, mau lihat data?' });
-    }
-    next();
-}
-
-app.use(blockPostman);
+// function blockPostman(req, res, next) {
+//     const postmanToken = req.get('postman-token');
+//     if (postmanToken) {
+//         return res.status(403).json({ message: 'Waduh, mau lihat data?' });
+//     }
+//     next();
+// }
+//
+// app.use(blockPostman);
 
 function authenticateApiKey(req, res, next) {
     const apiKey = req.headers['x-api-key'];
@@ -57,8 +53,21 @@ function authenticateApiKey(req, res, next) {
     }
 }
 
-// Middleware autentikasi JWT
+function authenticateJWT(req, res, next) {
+    const token = req.header('Authorization');
 
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecretKey, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.user = user;
+        next();
+    });
+}
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -77,7 +86,7 @@ app.post('/login', async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (passwordMatch) {
-            const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
             res.cookie('token', token, { maxAge: 3600000 });
             res.json({ token });
         } else {
@@ -86,6 +95,19 @@ app.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat proses login');
+    }
+});
+
+app.get('/pastor', authenticateJWT, async (req, res) => {
+    // Hanya dapat diakses dengan API key dan JWT yang valid
+    try {
+        const client = await pool.connect();
+        const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
+        client.release();
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat mengambil data');
     }
 });
 
