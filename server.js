@@ -158,19 +158,6 @@ app.put('/update-profile/:id', async (req, res) => {
     }
 });
 
-
-app.get('/pastor', authenticateApiKey, async (req, res) => {
-    try {
-        const client = await pool.connect();
-        const result = await pool.query('SELECT * FROM pastor WHERE is_completed = false');
-        client.release();
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send('Terjadi kesalahan saat mengambil data');
-    }
-});
-
 app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
     try {
         const client = await pool.connect();
