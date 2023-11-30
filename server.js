@@ -17,7 +17,6 @@ const jwtSecretKey = 'jwtsecret'; // Ganti dengan kunci rahasia JWT yang kuat
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
 const pool = new Pool({ connectionString });
 
-const validApiKey = 'dani1234'; // Kunci API yang valid
 
 const allowedOrigins = ['https://ok-pastor.vercel.app', 'https://ok-pastor-frontend.vercel.app', 'http://localhost:9000'];
 
@@ -191,7 +190,7 @@ app.put('/pastor/:id', authenticateJWT, async (req, res) => {
 });
 
 //kategori pendidikan
-app.post('/pastor', authenticateJWT, async (req, res) => {
+app.post('/pastor', async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
