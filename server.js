@@ -12,7 +12,6 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const secretKey = 'dani'; // Ganti dengan kunci rahasia yang kuat
 const jwtSecretKey = 'jwtsecret'; // Ganti dengan kunci rahasia JWT yang kuat
 
 const connectionString = "postgres://awmhhxgt:yZ1HVE5U6a6WzGJZP8JbMksTuOSzl2sf@batyr.db.elephantsql.com/awmhhxgt";
@@ -33,25 +32,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-// function blockPostman(req, res, next) {
-//     const postmanToken = req.get('postman-token');
-//     if (postmanToken) {
-//         return res.status(403).json({ message: 'Waduh, mau lihat data?' });
-//     }
-//     next();
-// }
-//
-// app.use(blockPostman);
-
-function authenticateApiKey(req, res, next) {
-    const apiKey = req.headers['x-api-key'];
-    if (apiKey === validApiKey) {
-        next();
-    } else {
-        res.status(403).json({ message: 'Invalid API key' });
-    }
-}
 
 function authenticateJWT(req, res, next) {
     const token = req.header('Authorization');
@@ -158,7 +138,7 @@ app.put('/update-profile/:id', async (req, res) => {
     }
 });
 
-app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
+app.get('/pastor/completed', authenticateJWT, async (req, res) => {
     try {
         const client = await pool.connect();
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
@@ -172,7 +152,7 @@ app.get('/pastor/completed', authenticateApiKey, async (req, res) => {
 
 
 // Fungsi untuk mendapatkan post berdasarkan ID
-app.get('/pastor/:id', authenticateApiKey, async (req, res) => {
+app.get('/pastor/:id', authenticateJWT, async (req, res) => {
     const postId = req.params.id;
 
     try {
@@ -191,7 +171,7 @@ app.get('/pastor/:id', authenticateApiKey, async (req, res) => {
     }
 });
 
-app.put('/pastor/:id', authenticateApiKey, async (req, res) => {
+app.put('/pastor/:id', authenticateJWT, async (req, res) => {
     const postId = req.params.id;
 
     try {
@@ -211,7 +191,7 @@ app.put('/pastor/:id', authenticateApiKey, async (req, res) => {
 });
 
 //kategori pendidikan
-app.post('/pastor', authenticateApiKey, async (req, res) => {
+app.post('/pastor', authenticateJWT, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -235,7 +215,7 @@ app.post('/pastor', authenticateApiKey, async (req, res) => {
     }
 });
 
-app.post('/pastor/keluarga', authenticateApiKey, async (req, res) => {
+app.post('/pastor/keluarga', authenticateJWT, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -259,7 +239,7 @@ app.post('/pastor/keluarga', authenticateApiKey, async (req, res) => {
     }
 });
 
-app.post('/pastor/percintaan', authenticateApiKey, async (req, res) => {
+app.post('/pastor/percintaan', authenticateJWT, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -283,7 +263,7 @@ app.post('/pastor/percintaan', authenticateApiKey, async (req, res) => {
     }
 });
 
-app.post('/pastor/pekerjaan', authenticateApiKey, async (req, res) => {
+app.post('/pastor/pekerjaan', authenticateJWT, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -307,7 +287,7 @@ app.post('/pastor/pekerjaan', authenticateApiKey, async (req, res) => {
     }
 });
 
-app.delete('/pastor/:id', authenticateApiKey, async (req, res) => {
+app.delete('/pastor/:id', authenticateJWT, async (req, res) => {
     const postId = req.params.id;
 
     try {
