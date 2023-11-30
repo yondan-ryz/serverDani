@@ -215,7 +215,7 @@ app.post('/pastor', authenticateJWT, async (req, res) => {
     }
 });
 
-app.post('/pastor/keluarga', authenticateJWT, async (req, res) => {
+app.post('/pastor/keluarga', async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -239,7 +239,7 @@ app.post('/pastor/keluarga', authenticateJWT, async (req, res) => {
     }
 });
 
-app.post('/pastor/percintaan', authenticateJWT, async (req, res) => {
+app.post('/pastor/percintaan', async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -263,7 +263,7 @@ app.post('/pastor/percintaan', authenticateJWT, async (req, res) => {
     }
 });
 
-app.post('/pastor/pekerjaan', authenticateJWT, async (req, res) => {
+app.post('/pastor/pekerjaan', async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
