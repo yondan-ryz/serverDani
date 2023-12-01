@@ -48,7 +48,7 @@ function authenticateJWT(req, res, next) {
     });
 }
 
-function authenticateJWTForReadPastor(req, res, next) {
+function authenticateJWTAdmin(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
@@ -128,7 +128,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWTForReadPastor, async (req, res) => {
+app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
@@ -141,7 +141,7 @@ app.get('/pastor',  authenticateJWTForReadPastor, async (req, res) => {
     }
 });
 
-app.put('/update-profile/:id', async (req, res) => {
+app.put('/update-profile/:id', authenticateJWTAdmin, async (req, res) => {
     const userId = req.params.id;
     const { oldPassword, newUsername, newPassword } = req.body;
     let client;
@@ -188,7 +188,7 @@ app.put('/update-profile/:id', async (req, res) => {
     }
 });
 
-app.get('/pastor/completed', authenticateJWT, async (req, res) => {
+app.get('/pastor/completed', authenticateJWTAdmin, async (req, res) => {
     try {
         const client = await pool.connect();
         const result = await pool.query('SELECT * FROM pastor WHERE is_completed = true');
@@ -202,7 +202,7 @@ app.get('/pastor/completed', authenticateJWT, async (req, res) => {
 
 
 // Fungsi untuk mendapatkan post berdasarkan ID
-app.get('/pastor/:id', authenticateJWT, async (req, res) => {
+app.get('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
     const postId = req.params.id;
 
     try {
@@ -221,24 +221,24 @@ app.get('/pastor/:id', authenticateJWT, async (req, res) => {
     }
 });
 
-app.put('/pastor/:id', authenticateJWT, async (req, res) => {
-    const postId = req.params.id;
-
-    try {
-        const { is_completed } = req.body;
-
-        const result = await pool.query('UPDATE pastor SET is_completed = $1 WHERE id = $2', [is_completed, postId]);
-
-        if (result.rowCount > 0) {
-            res.json({ message: 'Status is_completed berhasil diperbarui' });
-        } else {
-            res.status(404).json({ message: 'Post tidak ditemukan' });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send('Terjadi kesalahan saat memperbarui status is_completed');
-    }
-});
+// app.put('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
+//     const postId = req.params.id;
+//
+//     try {
+//         const { is_completed } = req.body;
+//
+//         const result = await pool.query('UPDATE pastor SET is_completed = $1 WHERE id = $2', [is_completed, postId]);
+//
+//         if (result.rowCount > 0) {
+//             res.json({ message: 'Status is_completed berhasil diperbarui' });
+//         } else {
+//             res.status(404).json({ message: 'Post tidak ditemukan' });
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).send('Terjadi kesalahan saat memperbarui status is_completed');
+//     }
+// });
 
 //kategori pendidikan
 app.post('/pastor', async (req, res) => {
@@ -337,7 +337,7 @@ app.post('/pastor/pekerjaan', async (req, res) => {
     }
 });
 
-app.delete('/pastor/:id', authenticateJWT, async (req, res) => {
+app.delete('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
     const postId = req.params.id;
 
     try {
