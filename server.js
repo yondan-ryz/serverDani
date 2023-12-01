@@ -141,7 +141,7 @@ app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     }
 });
 
-app.put('/update-profile/:id', authenticateJWTAdmin, async (req, res) => {
+app.put('/update-profile/:id', async (req, res) => {
     const userId = req.params.id;
     const { oldPassword, newUsername, newPassword } = req.body;
     let client;
