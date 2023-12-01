@@ -48,6 +48,34 @@ function authenticateJWT(req, res, next) {
     });
 }
 
+function authenticateJWTForReadPastor(req, res, next) {
+    const token = req.header('Authorization');
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecretKey, async (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+
+        // Check if the user has alt_id 100
+        const client = await pool.connect();
+        const altIdQuery = 'SELECT alt_id FROM users WHERE username = $1';
+        const altIdResult = await client.query(altIdQuery, [user.username]);
+        const userAltId = altIdResult.rows[0].alt_id;
+        client.release();
+
+        if (userAltId !== 100) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        req.user = user;
+        next();
+    });
+}
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -77,7 +105,30 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/pastor', authenticateJWT, async (req, res) => {
+app.post('/create-user', async (req, res) => {
+    const { username, password, alt_id } = req.body;
+
+    try {
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const client = await pool.connect();
+        const query = 'INSERT INTO users (username, password, alt_id) VALUES ($1, $2, $3) RETURNING *';
+        const result = await client.query(query, [username, hashedPassword, alt_id]);
+        const newUser = result.rows[0];
+        client.release();
+
+        res.json(newUser);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat menambahkan pengguna');
+    }
+});
+
+app.get('/pastor',  authenticateJWTForReadPastor, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
