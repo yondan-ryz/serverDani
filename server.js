@@ -95,7 +95,7 @@ app.post('/login', async (req, res) => {
         if (passwordMatch) {
             const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
             res.cookie('token', token, { maxAge: 3600000 });
-            res.json({ token });
+            res.json({ username: user.username ,token });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -242,7 +242,7 @@ app.put('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
 
 //kategori pendidikan
 app.post('/pastor', async (req, res) => {
-    const { name, content, token, user_id } = req.body;
+    const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
     const validToken = "dani";
@@ -253,8 +253,8 @@ app.post('/pastor', async (req, res) => {
         }
 
         const client = await pool.connect();
-        const query = 'INSERT INTO pastor (name, content, category, is_completed, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-        const values = [name, content, 'Pendidikan', false, user_id]; // Set default category and is_completed
+        const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, content, 'Pendidikan', false]; // Set default category and is_completed
         const result = await client.query(query, values);
         const insertedPost = result.rows[0];
         client.release();
