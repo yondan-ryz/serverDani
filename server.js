@@ -241,12 +241,16 @@ app.put('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
 });
 
 app.get('/qrlink',  authenticateJWTAdmin, async (req, res) => {
-    // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
         const result = await pool.query('SELECT * FROM qrlink WHERE main = 1');
         client.release();
-        res.json(result.rows);
+
+        if (result.rows.length > 0) {
+            res.json(result.rows[0]);
+        } else {
+            res.status(404).json({ message: 'Post tidak ditemukan' });
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Terjadi kesalahan saat mengambil data');
