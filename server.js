@@ -257,21 +257,28 @@ app.get('/qrlink',  authenticateJWTAdmin, async (req, res) => {
     }
 });
 
-app.put('/qrlink/edit', authenticateJWTAdmin, async (req, res) => {
+app.put('/qrlink/edit', async (req, res) => {
+    const { newLink } = req.body;
 
     try {
-        const { link } = req.body;
+        const client = await pool.connect();
 
-        const result = await pool.query('UPDATE qrlink SET link = $1', [link]);
+        // Assuming you have an 'id' field in your qrlink table
+        const result = await pool.query(
+            'UPDATE qrlink SET link = $1', // Update based on your actual schema
+            [newLink]
+        );
+
+        client.release();
 
         if (result.rowCount > 0) {
-            res.json({ message: 'Status is_completed berhasil diperbarui' });
+            res.json({ message: 'QR link updated successfully' });
         } else {
-            res.status(404).json({ message: 'Post tidak ditemukan' });
+            res.status(404).json({ message: 'QR link not found for update' });
         }
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send('Terjadi kesalahan saat memperbarui status is_completed');
+        console.error('Error updating QR link:', error);
+        res.status(500).json({ message: 'An error occurred while updating QR link' });
     }
 });
 
