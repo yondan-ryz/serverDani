@@ -240,6 +240,18 @@ app.put('/pastor/:id', authenticateJWTAdmin, async (req, res) => {
     }
 });
 
+app.get('/qrlink',  authenticateJWTAdmin, async (req, res) => {
+    // Hanya dapat diakses dengan API key dan JWT yang valid
+    try {
+        const client = await pool.connect();
+        const result = await pool.query('SELECT * FROM qrlink WHERE main = 1');
+        client.release();
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat mengambil data');
+    }
+});
 //kategori pendidikan
 app.post('/pastor', async (req, res) => {
     const { name, content, token } = req.body;
