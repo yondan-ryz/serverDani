@@ -256,6 +256,25 @@ app.get('/qrlink',  authenticateJWTAdmin, async (req, res) => {
         res.status(500).send('Terjadi kesalahan saat mengambil data');
     }
 });
+
+app.put('/qrlink/edit', authenticateJWTAdmin, async (req, res) => {
+
+    try {
+        const { link } = req.body;
+
+        const result = await pool.query('UPDATE qrlink SET link = $1', [link]);
+
+        if (result.rowCount > 0) {
+            res.json({ message: 'Status is_completed berhasil diperbarui' });
+        } else {
+            res.status(404).json({ message: 'Post tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat memperbarui status is_completed');
+    }
+});
+
 //kategori pendidikan
 app.post('/pastor', async (req, res) => {
     const { name, content, token } = req.body;
