@@ -62,12 +62,12 @@ function authenticateJWTAdmin(req, res, next) {
 
         // Check if the user has alt_id 100
         const client = await pool.connect();
-        const altIdQuery = 'SELECT alt_id FROM users WHERE username = $1';
+        const altIdQuery = 'SELECT superadmin FROM users WHERE username = $1';
         const altIdResult = await client.query(altIdQuery, [user.username]);
-        const userAltId = altIdResult.rows[0].alt_id;
+        const userAltId = altIdResult.rows[0].superadmin;
         client.release();
 
-        if (userAltId !== 100) {
+        if (userAltId !== true) {
             return res.status(403).json({ message: 'Access denied' });
         }
 
@@ -82,6 +82,35 @@ app.post('/login', async (req, res) => {
     try {
         const client = await pool.connect();
         const query = 'SELECT * FROM users WHERE username = $1';
+        const result = await client.query(query, [username]);
+        const user = result.rows[0];
+        client.release();
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (passwordMatch) {
+            const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
+            res.cookie('token', token, { maxAge: 3600000 });
+            res.json({ username: user.username ,token });
+        } else {
+            res.status(401).json({ message: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Terjadi kesalahan saat proses login');
+    }
+});
+
+app.post('/login_admin', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const client = await pool.connect();
+        const query = 'SELECT * FROM user_admin WHERE username = $1';
         const result = await client.query(query, [username]);
         const user = result.rows[0];
         client.release();
