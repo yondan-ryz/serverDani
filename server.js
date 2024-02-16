@@ -101,7 +101,7 @@ app.post('/login', async (req, res) => {
         }
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send('Terjadi kesalahan  pada server saat proses login');
+        res.status(401).json({ serverProblem: 'Terjadi kesalahan pada server' });
     }
 });
 
