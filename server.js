@@ -87,7 +87,7 @@ app.post('/login', async (req, res) => {
         client.release();
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Username atau Password salah' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
@@ -97,11 +97,11 @@ app.post('/login', async (req, res) => {
             res.cookie('token', token, { maxAge: 3600000 });
             res.json({ username: user.username ,token });
         } else {
-            res.status(401).json({ message: 'Invalid credentials' });
+            res.status(401).json({ message: 'Username atau Password salah' });
         }
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send('Terjadi kesalahan saat proses login');
+        res.status(500).send('Terjadi kesalahan  pada server saat proses login');
     }
 });
 
