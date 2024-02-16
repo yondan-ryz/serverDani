@@ -81,9 +81,15 @@ app.post('/login', async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (passwordMatch) {
-            const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
-            res.cookie('token', token, { maxAge: 3600000 });
-            res.json({ username: user.username ,token });
+            let token;
+            if (user.username === 'superadmin') {
+                token = jwt.sign({ username: user.username, role: 'superadmin' }, jwtSecretKey, { expiresIn: '1h' });
+                res.cookie('tokenadmin', token, { maxAge: 3600000 });
+            } else {
+                token = jwt.sign({ username: user.username, role: 'user' }, jwtSecretKey, { expiresIn: '1h' });
+                res.cookie('token', token, { maxAge: 3600000 });
+            }
+            res.json({ username: user.username, token });
         } else {
             res.status(401).json({ message: 'Username atau Password salah.' });
         }
@@ -92,6 +98,8 @@ app.post('/login', async (req, res) => {
         res.status(500).send({ message: 'Terjadi kesalahan pada Server.' });
     }
 });
+
+
 
 app.post('/login_admin', async (req, res) => {
     const { username, password } = req.body;
