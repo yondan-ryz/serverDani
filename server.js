@@ -87,7 +87,7 @@ app.post('/login', async (req, res) => {
         client.release();
 
         if (!user) {
-            return res.status(401).json({ message: 'Username atau Password salah' });
+            return res.status(401).json({ message: 'Username atau Password salah.' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
