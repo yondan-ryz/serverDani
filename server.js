@@ -97,11 +97,11 @@ app.post('/login', async (req, res) => {
             res.cookie('token', token, { maxAge: 3600000 });
             res.json({ username: user.username ,token });
         } else {
-            res.status(401).json({ message: 'Username atau Password salah' });
+            res.status(401).json({ message: 'Username atau Password salah.' });
         }
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send({ message: 'Kesalahan pada Server' });
+        res.status(500).send({ message: 'Terjadi kesalahan pada Server.' });
     }
 });
 
