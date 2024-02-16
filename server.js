@@ -59,18 +59,6 @@ function authenticateJWTAdmin(req, res, next) {
         if (err) {
             return res.status(403).json({ message: 'Invalid token' });
         }
-
-        // Check if the user has alt_id 100
-        const client = await pool.connect();
-        const altIdQuery = 'SELECT superadmin FROM user_admin WHERE username = $1';
-        const altIdResult = await client.query(altIdQuery, [user.username]);
-        const userAltId = altIdResult.rows[0].superadmin;
-        client.release();
-
-        if (userAltId !== true) {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
         req.user = user;
         next();
     });
