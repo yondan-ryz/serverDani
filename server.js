@@ -181,7 +181,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWTSuperAdmin, async (req, res) => {
+app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
@@ -194,7 +194,7 @@ app.get('/pastor',  authenticateJWTSuperAdmin, async (req, res) => {
     }
 });
 
-app.put('/update-profile', async (req, res) => {
+app.put('/update-profile', authenticateJWTSuperAdmin,async (req, res) => {
 
     const { oldPassword, newUsername, newPassword } = req.body;
     let client;
