@@ -170,8 +170,8 @@ app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     }
 });
 
-app.put('/update-profile/:id', async (req, res) => {
-    const userId = req.params.id;
+app.put('/update-profile', async (req, res) => {
+
     const { oldPassword, newUsername, newPassword } = req.body;
     let client;
 
@@ -179,8 +179,8 @@ app.put('/update-profile/:id', async (req, res) => {
         client = await pool.connect();
 
         // Check if the user exists
-        const userQuery = 'SELECT * FROM users WHERE alt_id = $1';
-        const userResult = await client.query(userQuery, [userId]);
+        const userQuery = 'SELECT * FROM user_admin WHERE superadmin = true';
+        const userResult = await client.query(userQuery);
         const user = userResult.rows[0];
 
         if (!user) {
@@ -195,15 +195,15 @@ app.put('/update-profile/:id', async (req, res) => {
 
         // Update Username if provided
         if (newUsername) {
-            const updateUsernameQuery = 'UPDATE users SET username = $1 WHERE alt_id = $2';
-            await client.query(updateUsernameQuery, [newUsername, userId]);
+            const updateUsernameQuery = 'UPDATE user_admin SET username = $1 WHERE superadmin = true';
+            await client.query(updateUsernameQuery, [newUsername]);
         }
 
         // Update Password if provided
         if (newPassword) {
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-            const updatePasswordQuery = 'UPDATE users SET password = $1 WHERE alt_id = $2';
-            await client.query(updatePasswordQuery, [hashedNewPassword, userId]);
+            const updatePasswordQuery = 'UPDATE user_admin SET password = $1 WHERE superadmin = true';
+            await client.query(updatePasswordQuery, [hashedNewPassword]);
         }
 
         res.json({ message: 'Profile updated successfully' });
