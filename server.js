@@ -64,6 +64,34 @@ function authenticateJWTAdmin(req, res, next) {
     });
 }
 
+function authenticateJWTSuperAdmin(req, res, next) {
+    const token = req.header('Authorization');
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecretKey, async (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+
+        // Check if the user has alt_id 100
+        const client = await pool.connect();
+        const altIdQuery = 'SELECT superadmin FROM user_admin WHERE username = $1';
+        const altIdResult = await client.query(altIdQuery, [user.username]);
+        const userAltId = altIdResult.rows[0].superadmin;
+        client.release();
+
+        if (userAltId !== true) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        req.user = user;
+        next();
+    });
+}
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -153,7 +181,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
+app.get('/pastor',  authenticateJWTSuperAdmin, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
