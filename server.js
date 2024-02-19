@@ -64,6 +64,18 @@ function authenticateJWTAdmin(req, res, next) {
     });
 }
 
+function checkDomain(req, res, next) {
+    const allowedDomains = ['domain1.com', 'domain2.com']; // Daftar domain yang diizinkan
+
+    const requestDomain = req.headers.host; // Mendapatkan domain dari header host
+
+    // Memeriksa apakah domain pengguna termasuk dalam daftar yang diizinkan
+    if (allowedDomains.includes(requestDomain)) {
+        next(); // Lanjutkan ke middleware berikutnya
+    } else {
+        res.status(403).json({ message: "Akses ditolak untuk domain ini." }); // Tampilkan pesan kesalahan jika domain tidak diizinkan
+    }
+}
 function authenticateJWTUser(req, res, next) {
     const token = req.header('Authorization');
 
@@ -227,7 +239,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWTUser, async (req, res) => {
+app.get('/pastor',  authenticateJWT, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
