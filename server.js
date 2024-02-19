@@ -110,7 +110,7 @@ app.post('/login', async (req, res) => {
 
         if (passwordMatch) {
             const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
-            res.cookie('token', token, { maxAge: 3600000 });
+            res.cookie('token', token, { maxAge: 3600000, domain: 'ok-pastor.frontend.vercel.app', sameSite: 'Strict'});
             res.json({ username: user.username ,token });
         } else {
             res.status(401).json({ message: 'Username atau Password salah.' });
