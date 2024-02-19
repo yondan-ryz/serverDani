@@ -239,7 +239,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWT, async (req, res) => {
+app.get('/pastor',  authenticateJWT, checkDomain, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
