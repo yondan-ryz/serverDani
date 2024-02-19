@@ -141,7 +141,7 @@ app.post('/login_admin', async (req, res) => {
 
         if (passwordMatch) {
             const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
-            res.cookie('token', token, { maxAge: 3600000, domain: 'ok-pastor.vercel.app' });
+            res.cookie('token', token, { maxAge: 3600000, domain: 'ok-pastor.vercel.app', sameSite: 'Strict'});
             res.json({ username: user.username ,token });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
