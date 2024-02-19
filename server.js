@@ -64,12 +64,12 @@ function authenticateJWTAdmin(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.status(401).json({ message: 'Terjadi kesalahan.' });
     }
 
     jwt.verify(token, jwtSecretKey, async (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Invalid token' });
+            return res.status(403).json({ message: 'Invalid token.' });
         }
 
         const client = await pool.connect();
@@ -79,7 +79,7 @@ function authenticateJWTAdmin(req, res, next) {
         client.release();
 
         if (userAltId === null) {
-            return res.status(403).json({ message: 'Access denied' });
+            return res.status(403).json({ message: 'Akses ditolak.' });
         }
         req.user = user;
         next();
@@ -91,12 +91,12 @@ function authenticateJWTUser(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.status(401).json({ message: 'Terjadi kesalahan.' });
     }
 
     jwt.verify(token, jwtSecretKey, async (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Invalid token' });
+            return res.status(403).json({ message: 'Invalid token.' });
         }
         // Check if the user has alt_id 100
         const client = await pool.connect();
@@ -106,7 +106,7 @@ function authenticateJWTUser(req, res, next) {
         client.release();
 
         if (userAltId === null) {
-            return res.status(403).json({ message: 'Access denied' });
+            return res.status(403).json({ message: 'Anda bukan user.' });
         }
         req.user = user;
         next();
@@ -116,7 +116,7 @@ function authenticateJWTSuperAdmin(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.status(401).json({ message: 'Terjadi Kesalahan' });
     }
 
     jwt.verify(token, jwtSecretKey, async (err, user) => {
@@ -132,7 +132,7 @@ function authenticateJWTSuperAdmin(req, res, next) {
         client.release();
 
         if (userAltId !== true) {
-            return res.status(403).json({ message: 'Access denied' });
+            return res.status(403).json({ message: 'Anda bukan Superadmin.' });
         }
 
         req.user = user;
