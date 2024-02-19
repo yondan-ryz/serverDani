@@ -157,7 +157,7 @@ app.post('/login', async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (passwordMatch) {
-            const token = jwt.sign({ username: user.username }, {domain: 'ok-pastor.vercel.app'}, jwtSecretKey, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.username }, {domain: 'ok-pastor-frontend.vercel.app'}, jwtSecretKey, { expiresIn: '1h' });
             res.cookie('token', token, {
                 maxAge: 3600000,
                 domain: 'ok-pastor.frontend.vercel.app',
