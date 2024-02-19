@@ -188,9 +188,9 @@ app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     }
 });
 
-app.put('/update-profile', authenticateJWTSuperAdmin,async (req, res) => {
+app.put('/update-profile-superadmin', authenticateJWTSuperAdmin,async (req, res) => {
 
-    const { oldPassword, newUsername, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
     let client;
 
     try {
@@ -202,21 +202,14 @@ app.put('/update-profile', authenticateJWTSuperAdmin,async (req, res) => {
         const user = userResult.rows[0];
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'Terdapat error harap hubungi developer.' });
         }
 
         // Verify old password
         const validPassword = await bcrypt.compare(oldPassword, user.password);
         if (!validPassword) {
-            return res.status(400).json({ message: 'Old password is incorrect' });
+            return res.status(400).json({ message: 'Password lama salah.' });
         }
-
-        // Update Username if provided
-        if (newUsername) {
-            const updateUsernameQuery = 'UPDATE user_admin SET username = $1 WHERE superadmin = true';
-            await client.query(updateUsernameQuery, [newUsername]);
-        }
-
         // Update Password if provided
         if (newPassword) {
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
@@ -224,10 +217,10 @@ app.put('/update-profile', authenticateJWTSuperAdmin,async (req, res) => {
             await client.query(updatePasswordQuery, [hashedNewPassword]);
         }
 
-        res.json({ message: 'Profile updated successfully' });
+        res.json({ message: 'Password berhasil diupdate.' });
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send('An error occurred while updating profile');
+        res.status(500).send('Terdapat error ketika melakukan update password.');
     } finally {
         if (client) {
             client.release(); // Selalu pastikan koneksi dilepaskan, bahkan jika terjadi kesalahan.
