@@ -380,15 +380,11 @@ app.put('/qrlink/edit', authenticateJWTAdmin, async (req, res) => {
 
 //kategori pendidikan
 app.post('/pastor', authenticateJWTUser, async (req, res) => {
-    const { name, content, token } = req.body;
+    const { name, content } = req.body;
 
 // Ganti dengan token yang benar
-    const validToken = "dani";
 
     try {
-        if (token !== validToken) {
-            return res.status(403).send('Akses ditolak');
-        }
 
         const client = await pool.connect();
         const query = 'INSERT INTO pastor (name, content, category, is_completed) VALUES ($1, $2, $3, $4) RETURNING *';
