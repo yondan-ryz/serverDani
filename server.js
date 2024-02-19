@@ -48,6 +48,18 @@ function authenticateJWT(req, res, next) {
     });
 }
 
+function checkDomainAdmin(req, res, next) {
+    const allowedDomains = ['https://ok-pastor.vercel.app']; // Daftar domain yang diizinkan
+
+    const requestDomain = req.headers.host; // Mendapatkan domain dari header host
+
+    // Memeriksa apakah domain pengguna termasuk dalam daftar yang diizinkan
+    if (allowedDomains.includes(requestDomain)) {
+        next(); // Lanjutkan ke middleware berikutnya
+    } else {
+        res.status(403).json({ message: "Akses ditolak untuk domain ini." }); // Tampilkan pesan kesalahan jika domain tidak diizinkan
+    }
+}
 function authenticateJWTAdmin(req, res, next) {
     const token = req.header('Authorization');
 
@@ -59,23 +71,22 @@ function authenticateJWTAdmin(req, res, next) {
         if (err) {
             return res.status(403).json({ message: 'Invalid token' });
         }
+
+        const client = await pool.connect();
+        const altIdQuery = 'SELECT superadmin FROM user_admin WHERE username = $1';
+        const altIdResult = await client.query(altIdQuery, [user.username]);
+        const userAltId = altIdResult.rows[0].superadmin;
+        client.release();
+
+        if (userAltId === null) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
         req.user = user;
         next();
     });
 }
 
-function checkDomain(req, res, next) {
-    const allowedDomains = ['domain1.com', 'domain2.com']; // Daftar domain yang diizinkan
 
-    const requestDomain = req.headers.host; // Mendapatkan domain dari header host
-
-    // Memeriksa apakah domain pengguna termasuk dalam daftar yang diizinkan
-    if (allowedDomains.includes(requestDomain)) {
-        next(); // Lanjutkan ke middleware berikutnya
-    } else {
-        res.status(403).json({ message: "Akses ditolak untuk domain ini." }); // Tampilkan pesan kesalahan jika domain tidak diizinkan
-    }
-}
 function authenticateJWTUser(req, res, next) {
     const token = req.header('Authorization');
 
@@ -89,9 +100,9 @@ function authenticateJWTUser(req, res, next) {
         }
         // Check if the user has alt_id 100
         const client = await pool.connect();
-        const altIdQuery = 'SELECT alt_id FROM users WHERE username = $1';
+        const altIdQuery = 'SELECT username FROM users WHERE username = $1';
         const altIdResult = await client.query(altIdQuery, [user.username]);
-        const userAltId = altIdResult.rows[0].alt_id;
+        const userAltId = altIdResult.rows[0].username;
         client.release();
 
         if (userAltId === null) {
@@ -163,25 +174,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/verifyToken', (req, res) => {
-    const token = req.body.token;
-
-    // Jika token tidak ada, kembalikan respon dengan status 400 (Bad Request)
-    if (!token) {
-        return res.status(400).json({ message: 'Token tidak ditemukan' });
-    }
-
-    // Memverifikasi token
-    jwt.verify(token, jwtSecretKey, (err, decoded) => {
-        if (err) {
-            // Jika token tidak valid, kembalikan respon dengan status 401 (Unauthorized)
-            return res.status(401).json({ message: 'Token tidak valid' });
-        }
-
-        // Jika token valid, kembalikan respon dengan status 200 (OK) dan payload token
-        res.status(200).json({ message: 'Token valid', decoded });
-    });
-});
 
 app.post('/login_admin', async (req, res) => {
     const { username, password } = req.body;
@@ -239,7 +231,7 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
-app.get('/pastor',  authenticateJWT, checkDomain, async (req, res) => {
+app.get('/pastor',  authenticateJWTAdmin, async (req, res) => {
     // Hanya dapat diakses dengan API key dan JWT yang valid
     try {
         const client = await pool.connect();
@@ -361,7 +353,7 @@ app.get('/qrlink',  authenticateJWTAdmin, async (req, res) => {
     }
 });
 
-app.put('/qrlink/edit', async (req, res) => {
+app.put('/qrlink/edit', authenticateJWTAdmin, async (req, res) => {
     const { newLink } = req.body;
 
     try {
@@ -387,7 +379,7 @@ app.put('/qrlink/edit', async (req, res) => {
 });
 
 //kategori pendidikan
-app.post('/pastor', async (req, res) => {
+app.post('/pastor', authenticateJWTUser, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -411,7 +403,7 @@ app.post('/pastor', async (req, res) => {
     }
 });
 
-app.post('/pastor/keluarga', async (req, res) => {
+app.post('/pastor/keluarga', authenticateJWTUser, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -435,7 +427,7 @@ app.post('/pastor/keluarga', async (req, res) => {
     }
 });
 
-app.post('/pastor/percintaan', async (req, res) => {
+app.post('/pastor/percintaan', authenticateJWTUser, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
@@ -459,7 +451,7 @@ app.post('/pastor/percintaan', async (req, res) => {
     }
 });
 
-app.post('/pastor/pekerjaan', async (req, res) => {
+app.post('/pastor/pekerjaan', authenticateJWTUser, async (req, res) => {
     const { name, content, token } = req.body;
 
 // Ganti dengan token yang benar
