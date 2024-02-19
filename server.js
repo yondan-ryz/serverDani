@@ -109,8 +109,13 @@ app.post('/login', async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (passwordMatch) {
-            const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
-            res.cookie('token', token, { maxAge: 3600000, domain: 'ok-pastor.frontend.vercel.app', sameSite: 'Strict'});
+            const token = jwt.sign({ username: user.username }, {domain: 'ok-pastor.vercel.app'}, jwtSecretKey, { expiresIn: '1h' });
+            res.cookie('token', token, {
+                maxAge: 3600000,
+                domain: 'ok-pastor.frontend.vercel.app',
+                sameSite: 'Strict'
+            });
+
             res.json({ username: user.username ,token });
         } else {
             res.status(401).json({ message: 'Username atau Password salah.' });
@@ -121,7 +126,25 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/verifyToken', (req, res) => {
+    const token = req.body.token;
 
+    // Jika token tidak ada, kembalikan respon dengan status 400 (Bad Request)
+    if (!token) {
+        return res.status(400).json({ message: 'Token tidak ditemukan' });
+    }
+
+    // Memverifikasi token
+    jwt.verify(token, jwtSecretKey, (err, decoded) => {
+        if (err) {
+            // Jika token tidak valid, kembalikan respon dengan status 401 (Unauthorized)
+            return res.status(401).json({ message: 'Token tidak valid' });
+        }
+
+        // Jika token valid, kembalikan respon dengan status 200 (OK) dan payload token
+        res.status(200).json({ message: 'Token valid', decoded });
+    });
+});
 
 app.post('/login_admin', async (req, res) => {
     const { username, password } = req.body;
@@ -141,7 +164,11 @@ app.post('/login_admin', async (req, res) => {
 
         if (passwordMatch) {
             const token = jwt.sign({ username: user.username }, jwtSecretKey, { expiresIn: '1h' });
-            res.cookie('token', token, { maxAge: 3600000, domain: 'ok-pastor.vercel.app', sameSite: 'Strict'});
+            res.cookie('token', token, {
+                maxAge: 3600000,
+                domain: 'ok-pastor.vercel.app',
+                sameSite: 'Strict'
+            });
             res.json({ username: user.username ,token });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
