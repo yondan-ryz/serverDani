@@ -379,7 +379,7 @@ app.put('/qrlink/edit', authenticateJWTAdmin, async (req, res) => {
 });
 
 //kategori pendidikan
-app.post('/pastor', authenticateJWTUser, async (req, res) => {
+app.post('/pastor',  async (req, res) => {
     const { name, content } = req.body;
 
 // Ganti dengan token yang benar
