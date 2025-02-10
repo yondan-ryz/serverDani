@@ -27,6 +27,17 @@ app.get('/blacklist', (req, res) => {
                 blacklistUpdateDate: "2024-06-06 17:01:12",
                 reason: "Fraud Issue",
                 whitelist: true
+            },
+            {
+                idNumber: "1408045207750001",
+                source: "bsim",
+                contactNumber: "08100000269",
+                custName: "Asep",
+                category: "DANI",
+                blacklistDatetime: "2024-06-06 17:01:12",
+                blacklistUpdateDate: "2024-06-06 17:01:12",
+                reason: "Fraud Issue",
+                whitelist: true
             }
         ],
         transactionId: "2opYog4YMzbic6JcFNQFJJgkn9l"
