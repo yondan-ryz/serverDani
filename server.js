@@ -22,7 +22,7 @@ app.get('/blacklist/check', (req, res) => {
                 source: "bsim",
                 contactNumber: "08100000269",
                 custName: "Asep",
-                category: "DANI",
+                category: "FRAUD",
                 blacklistDatetime: "2024-06-06 17:01:12",
                 blacklistUpdateDate: "2024-06-06 17:01:12",
                 reason: "Fraud Issue",
