@@ -2,60 +2,30 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.get('/blacklist/check', (req, res) => {
+// Middleware untuk parsing JSON
+app.use(express.json());
+
+// Endpoint POST
+app.post('/, (req, res) => {
     const response = {
-        errors: null,
-        data: [
-            {
-                idNumber: "1408045207750001",
-                source: "smmf",
-                contactNumber: "08100000269",
-                custName: "Asep",
-                category: "HR_REASONS",
-                blacklistDatetime: "2024-06-06 17:01:12",
-                blacklistUpdateDate: "2024-06-06 17:01:12",
-                reason: "Melanggar kontrak kerja",
-                whitelist: false
-            },
-            {
-                idNumber: "1408045207750001",
-                source: "bsim",
-                contactNumber: "08100000269",
-                custName: "Asep",
-                category: "FRAUD",
-                blacklistDatetime: "2024-06-06 17:01:12",
-                blacklistUpdateDate: "2024-06-06 17:01:12",
-                reason: "Fraud Issue",
-                whitelist: true
-            },
-            {
-                idNumber: "1408045207750001",
-                source: "bsim",
-                contactNumber: "08100000269",
-                custName: "Asep",
-                category: "ARREARS_TUNGGAKAN",
-                blacklistDatetime: "2024-06-06 17:01:12",
-                blacklistUpdateDate: "2024-06-06 17:01:12",
-                reason: "Fraud Issue",
-                whitelist: true
-            },
-            {
-                idNumber: "1408045207750001",
-                source: "bsim",
-                contactNumber: "08100000269",
-                custName: "Asep",
-                category: "REPOSSESSION",
-                blacklistDatetime: "2024-06-06 17:01:12",
-                blacklistUpdateDate: "2024-06-06 17:01:12",
-                reason: "Fraud Issue",
-                whitelist: true
-            }
-        ],
-        transactionId: "2opYog4YMzbic6JcFNQFJJgkn9l"
+        status: "1",
+        error: "00000000",
+        msg: null,
+        data: {
+            status: "finish",
+            result: "eligible",
+            order_id: "TESTELGI1",
+            retry_number: 1,
+            reason: null,
+            approval_level: "Korwil",
+            reason_category: [],
+            reason_description: null
+        }
     };
     res.json(response);
 });
 
+// Jalankan server
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
