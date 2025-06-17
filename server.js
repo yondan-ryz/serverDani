@@ -6,7 +6,7 @@ const port = 3000;
 app.use(express.json());
 
 // Endpoint POST
-app.post('/, (req, res) => {
+app.post('/blacklist/check', (req, res) => {
     const response = {
         status: "1",
         error: "00000000",
