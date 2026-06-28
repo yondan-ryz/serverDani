@@ -1,0 +1,95 @@
+### Base URL: http://localhost:3000
+
+### GET /api/uuid
+GET http://localhost:3000/api/uuid?version=4
+
+### POST /api/timestamp
+POST http://localhost:3000/api/timestamp
+Content-Type: application/json
+
+{
+  "action": "toUnix"
+}
+
+### GET /api/timestamp (legacy)
+GET http://localhost:3000/api/timestamp
+
+### POST /api/qrcode
+POST http://localhost:3000/api/qrcode
+Content-Type: application/json
+
+{
+  "text": "Hello QR",
+  "size": 256
+}
+
+### GET /api/qrcode (legacy)
+GET http://localhost:3000/api/qrcode?text=Hello%20QR&size=256
+
+### POST /api/barcode (EAN13)
+POST http://localhost:3000/api/barcode
+Content-Type: application/json
+
+{
+  "value": "1234567890128",
+  "type": "ean13"
+}
+
+### POST /api/minify
+POST http://localhost:3000/api/minify
+Content-Type: application/json
+
+{
+  "type": "html",
+  "code": "<html>   <!--c--> <body>  <h1>Hi</h1> </body></html>"
+}
+
+### POST /api/text (morseencode)
+POST http://localhost:3000/api/text
+Content-Type: application/json
+
+{
+  "action": "morseencode",
+  "text": "HELLO WORLD"
+}
+
+### POST /api/image (compress)
+POST http://localhost:3000/api/image
+Content-Type: application/json
+
+{
+  "action": "compress",
+  "imageBase64": "data:image/png;base64,PUT_BASE64_HERE",
+  "quality": 80,
+  "format": "webp"
+}
+
+### POST /api/pdf
+POST http://localhost:3000/api/pdf
+Content-Type: application/json
+
+{
+  "text": "Ini contoh PDF dari multi-api"
+}
+
+### POST /api/enigma (encrypt)
+POST http://localhost:3000/api/enigma
+Content-Type: application/json
+
+{
+  "action": "encrypt",
+  "text": "HELLO WORLD",
+  "key": "C"
+}
+
+### POST /api/enigma (decrypt)
+POST http://localhost:3000/api/enigma
+Content-Type: application/json
+
+{
+  "action": "decrypt",
+  "text": "KHOORZRUOG",
+  "key": "C"
+}
+
+

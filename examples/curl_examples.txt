@@ -1,0 +1,34 @@
+# Base URL
+BASE_URL=http://localhost:3000
+
+# 1) GET /api/uuid?version=4
+curl -X GET "http://localhost:3000/api/uuid?version=4" -H "Accept: application/json"
+
+# 2) POST /api/timestamp  {"action":"toUnix"}
+curl -X POST "http://localhost:3000/api/timestamp" -H "Content-Type: application/json" -d "{\"action\":\"toUnix\"}"
+
+# 3) GET /api/timestamp (legacy)
+curl -X GET "http://localhost:3000/api/timestamp" -H "Accept: application/json"
+
+# 4) POST /api/qrcode {"text":"Hello QR","size":256}
+curl -X POST "http://localhost:3000/api/qrcode" -H "Content-Type: application/json" -d "{\"text\":\"Hello QR\",\"size\":256}"
+
+# 5) GET /api/qrcode legacy ?text=...&size=...
+curl -X GET "http://localhost:3000/api/qrcode?text=Hello%20QR&size=256" -H "Accept: application/json"
+
+# 6) POST /api/barcode (ean13) {"value":"1234567890128","type":"ean13"}
+curl -X POST "http://localhost:3000/api/barcode" -H "Content-Type: application/json" -d "{\"value\":\"1234567890128\",\"type\":\"ean13\"}"
+
+# 7) POST /api/minify {"type":"html","code":"<html>..."}
+curl -X POST "http://localhost:3000/api/minify" -H "Content-Type: application/json" -d "{\"type\":\"html\",\"code\":\"<html>   <!--c--> <body>  <h1>Hi</h1> </body></html>\"}"
+
+# 8) POST /api/text (morseencode) {"action":"morseencode","text":"HELLO WORLD"}
+curl -X POST "http://localhost:3000/api/text" -H "Content-Type: application/json" -d "{\"action\":\"morseencode\",\"text\":\"HELLO WORLD\"}"
+
+# 9) POST /api/image (compress) {"imageBase64":"data:image/png;base64,..."}
+# GANTI PUT_BASE64_HERE
+curl -X POST "http://localhost:3000/api/image" -H "Content-Type: application/json" -d "{\"action\":\"compress\",\"imageBase64\":\"data:image/png;base64,PUT_BASE64_HERE\",\"quality\":80,\"format\":\"webp\"}"
+
+# 10) POST /api/pdf download
+curl -X POST "http://localhost:3000/api/pdf" -H "Content-Type: application/json" -d "{\"text\":\"Ini contoh PDF dari multi-api\"}" --output "output.pdf"
+

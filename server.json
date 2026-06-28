@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "servers": [
+    {
+      "name": "default",
+      "host": "localhost",
+      "port": 3000
+    }
+  ]
+}
+

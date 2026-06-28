@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>multi-api - Contoh Request/Response</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    textarea { width: 100%; min-height: 140px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
+    pre { background:#0b1020; color:#d7e2ff; padding: 12px; border-radius: 8px; overflow:auto; max-height: 360px; }
+    .card { border: 1px solid #e5e7eb; padding: 12px; border-radius: 10px; }
+    button { padding: 10px 12px; margin-top: 8px; cursor:pointer; }
+    .muted { color:#6b7280; font-size: 12px; }
+    label { font-weight: 600; }
+    .row { display:flex; gap:10px; align-items:center; }
+    select, input { padding: 8px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <h1>multi-api — Contoh Request/Response (HTML)</h1>
+  <div class="muted">Server harus berjalan: <code>node server.js</code> lalu buka halaman ini di browser. Endpoint di bawah mengarah ke <code id="base">http://localhost:3000</code>.</div>
+  <hr />
+
+  <div class="card" style="margin-bottom: 14px;">
+    <div class="row">
+      <div>
+        <label>Endpoint</label>
+        <br />
+        <select id="endpoint">
+          <option value="GET:/api/uuid">GET /api/uuid</option>
+          <option value="POST:/api/timestamp">POST /api/timestamp</option>
+          <option value="GET:/api/timestamp">GET /api/timestamp (legacy)</option>
+          <option value="POST:/api/qrcode">POST /api/qrcode</option>
+          <option value="GET:/api/qrcode">GET /api/qrcode (legacy)</option>
+          <option value="POST:/api/barcode">POST /api/barcode</option>
+          <option value="POST:/api/minify">POST /api/minify</option>
+          <option value="POST:/api/text">POST /api/text</option>
+          <option value="POST:/api/image">POST /api/image</option>
+          <option value="POST:/api/pdf">POST /api/pdf (download PDF)</option>
+        </select>
+      </div>
+      <div>
+        <label>Base URL</label>
+        <br />
+        <input id="baseUrl" style="min-width: 220px" value="http://localhost:3000" />
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <div class="muted">Cara pakai:
+        <ol>
+          <li>Pilih endpoint</li>
+          <li>Periksa/ubah body (untuk POST)</li>
+          <li>Klik <b>Send</b></li>
+          <li>Response muncul di panel kanan</li>
+        </ol>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <button id="sendBtn">Send</button>
+      <button id="resetBtn">Reset Contoh</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <label>Request</label>
+      <div class="muted">Method/URL otomatis dari dropdown.</div>
+      <div style="margin-top:8px;">
+        <div class="muted">Method/Path</div>
+        <pre id="reqMeta" style="max-height:120px;"></pre>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="muted">Query (untuk GET legacy)</div>
+        <input id="query" style="width:100%" placeholder="contoh: ?text=hello&size=256" />
+      </div>
+      <div style="margin-top:8px;">
+        <div class="muted">Body (untuk POST)</div>
+        <textarea id="body" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Response</label>
+      <pre id="resp"></pre>
+      <div class="muted">Untuk PDF, browser akan memicu download (response text mungkin tidak relevan).</div>
+    </div>
+  </div>
+
+<script>
+  const endpointSel = document.getElementById('endpoint');
+  const baseUrlInput = document.getElementById('baseUrl');
+  const bodyEl = document.getElementById('body');
+  const queryEl = document.getElementById('query');
+  const reqMetaEl = document.getElementById('reqMeta');
+  const respEl = document.getElementById('resp');
+  const sendBtn = document.getElementById('sendBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const baseSpan = document.getElementById('base');
+
+  const examples = {
+    'GET:/api/uuid': {
+      method: 'GET',
+      path: '/api/uuid',
+      query: '?version=4',
+      body: ''
+    },
+    'POST:/api/timestamp': {
+      method: 'POST',
+      path: '/api/timestamp',
+      query: '',
+      body: JSON.stringify({ action: 'toUnix' }, null, 2)
+    },
+    'GET:/api/timestamp': {
+      method: 'GET',
+      path: '/api/timestamp',
+      query: '',
+      body: ''
+    },
+    'POST:/api/qrcode': {
+      method: 'POST',
+      path: '/api/qrcode',
+      query: '',
+      body: JSON.stringify({ text: 'Hello QR', size: 256 }, null, 2)
+    },
+    'GET:/api/qrcode': {
+      method: 'GET',
+      path: '/api/qrcode',
+      query: '?text=Hello%20QR&size=256',
+      body: ''
+    },
+    'POST:/api/barcode': {
+      method: 'POST',
+      path: '/api/barcode',
+      query: '',
+      body: JSON.stringify({ value: '1234567890128', type: 'ean13' }, null, 2)
+    },
+    'POST:/api/minify': {
+      method: 'POST',
+      path: '/api/minify',
+      query: '',
+      body: JSON.stringify({ type: 'html', code: '<html>   <!--c--> <body>  <h1>Hi</h1> </body></html>' }, null, 2)
+    },
+    'POST:/api/text': {
+      method: 'POST',
+      path: '/api/text',
+      query: '',
+      body: JSON.stringify({ action: 'morseencode', text: 'HELLO WORLD' }, null, 2)
+    },
+    'POST:/api/image': {
+      method: 'POST',
+      path: '/api/image',
+      query: '',
+      body: JSON.stringify({
+        action: 'compress',
+        // Isi ini dengan base64 gambar kamu.
+        imageBase64: 'data:image/png;base64,PUT_BASE64_HERE',
+        quality: 80,
+        format: 'webp'
+      }, null, 2)
+    },
+    'POST:/api/pdf': {
+      method: 'POST',
+      path: '/api/pdf',
+      query: '',
+      body: JSON.stringify({ text: 'Ini contoh PDF dari multi-api' }, null, 2)
+    }
+  };
+
+  function setExample(key){
+    const ex = examples[key];
+    if(!ex) return;
+    baseSpan.textContent = baseUrlInput.value;
+    reqMetaEl.textContent = `${ex.method} ${ex.path}`;
+    queryEl.value = ex.query || '';
+    bodyEl.value = ex.body || '';
+  }
+
+  function currentKey(){
+    return endpointSel.value;
+  }
+
+  endpointSel.addEventListener('change', () => setExample(currentKey()));
+  resetBtn.addEventListener('click', () => setExample(currentKey()));
+  baseUrlInput.addEventListener('input', () => baseSpan.textContent = baseUrlInput.value);
+
+  async function send(){
+    const [method, path] = endpointSel.value.split(':');
+    const base = baseUrlInput.value.replace(/\/$/, '');
+    const query = (queryEl.value || '').trim();
+    const url = base + path + query;
+
+    respEl.textContent = 'Mengirim...';
+
+    try {
+      if(method === 'GET'){
+        const r = await fetch(url, { method: 'GET' });
+        const ct = r.headers.get('content-type') || '';
+        if(ct.includes('application/pdf')){
+          const blob = await r.blob();
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'output.pdf';
+          a.click();
+          respEl.textContent = 'Downloaded PDF';
+          return;
+        }
+        const txt = await r.text();
+        respEl.textContent = txt;
+        return;
+      }
+
+      // POST
+      const raw = bodyEl.value ? JSON.parse(bodyEl.value) : {};
+
+      const isPdf = endpointSel.value === 'POST:/api/pdf';
+      if(isPdf){
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(raw)
+        });
+        if(!r.ok) {
+          respEl.textContent = await r.text();
+          return;
+        }
+        const blob = await r.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'output.pdf';
+        a.click();
+        respEl.textContent = 'Downloaded PDF';
+        return;
+      }
+
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(raw)
+      });
+
+      const txt = await r.text();
+      respEl.textContent = txt;
+    } catch(err){
+      respEl.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+
+  // init
+  setExample(currentKey());
+</script>
+
+<hr />
+<div class="card">
+  <label>Contoh Response (ringkas)</label>
+  <ul>
+    <li><b>POST /api/barcode</b>: <code>{ success: true, message: 'Success', data: { type, value, pngBase64, dataUrl } }</code></li>
+    <li><b>POST /api/minify</b>: <code>{ success: true, message: 'Success', data: { minified: '...' } }</code></li>
+    <li><b>POST /api/text</b> (morseencode): <code>{ success: true, message: 'Success', data: { morse: '...' } }</code></li>
+    <li><b>POST /api/image</b>: <code>{ success: true, message: 'Success', data: { mime, format, pngOrImageBase64, dataUrl } }</code></li>
+    <li><b>POST /api/timestamp</b>: <code>{ success: true, message: 'Success', data: { timestamp|unix|date, ... } }</code></li>
+    <li><b>POST /api/qrcode</b>: <code>{ success: true, message: 'Success', data: { text, pngBase64, dataUrl } }</code></li>
+    <li><b>POST /api/pdf</b>: response binary PDF (Content-Type: application/pdf) dan header attachment filename output.pdf</li>
+  </ul>
+</div>
+
+</body>
+</html>
+

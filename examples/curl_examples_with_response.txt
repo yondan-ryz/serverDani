@@ -1,0 +1,114 @@
+# Base URL
+BASE_URL=http://localhost:3000
+
+# Format:
+# - bagian "curl" = command yang bisa kamu jalankan di Terminal
+# - bagian "response" = contoh hasil JSON (untuk beberapa endpoint).
+# Catatan:
+# - Untuk /api/pdf response biner (PDF) -> biasanya tidak berupa JSON.
+# - Isi UUID/dll di response bisa berbeda setiap kali jalan.
+
+
+==============================
+1) GET /api/uuid?version=4
+==============================
+CURL:
+curl -X GET "http://localhost:3000/api/uuid?version=4" -H "Accept: application/json"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"uuid":"c7019e50-d228-402c-8754-56acaf256bc8"}}
+
+
+==============================
+2) POST /api/timestamp  {"action":"toUnix"}
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/timestamp" -H "Content-Type: application/json" -d "{\"action\":\"toUnix\"}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"unix":0,"date":"1970-01-01T00:00:00.000Z"}}
+
+(angka contoh saja; karena tanpa eksekusi di server saat ini aku belum bisa menangkap response real)
+
+
+==============================
+3) GET /api/timestamp (legacy)
+==============================
+CURL:
+curl -X GET "http://localhost:3000/api/timestamp" -H "Accept: application/json"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"unix":0,"date":"1970-01-01T00:00:00.000Z"}}
+
+
+==============================
+4) POST /api/qrcode {"text":"Hello QR","size":256}
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/qrcode" -H "Content-Type: application/json" -d "{\"text\":\"Hello QR\",\"size\":256}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"text":"Hello QR","pngBase64":"...","dataUrl":"data:image/png;base64,..."}}
+
+
+==============================
+5) GET /api/qrcode legacy ?text=...&size=...
+==============================
+CURL:
+curl -X GET "http://localhost:3000/api/qrcode?text=Hello%20QR&size=256" -H "Accept: application/json"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"text":"Hello QR","pngBase64":"...","dataUrl":"data:image/png;base64,..."}}
+
+
+==============================
+6) POST /api/barcode {"value":"1234567890128","type":"ean13"}
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/barcode" -H "Content-Type: application/json" -d "{\"value\":\"1234567890128\",\"type\":\"ean13\"}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"type":"ean13","value":"1234567890128","pngBase64":"...","dataUrl":"data:image/png;base64,..."}}
+
+
+==============================
+7) POST /api/minify {"type":"html","code":"<html>..."}
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/minify" -H "Content-Type: application/json" -d "{\"type\":\"html\",\"code\":\"<html>   <!--c--> <body>  <h1>Hi</h1> </body></html>\"}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"minified":"<html><!--c--><body><h1>Hi</h1></body></html>"}}
+
+
+==============================
+8) POST /api/text {"action":"morseencode","text":"HELLO WORLD"}
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/text" -H "Content-Type: application/json" -d "{\"action\":\"morseencode\",\"text\":\"HELLO WORLD\"}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"morse":"...."}}
+
+
+==============================
+9) POST /api/image {"action":"compress","imageBase64":"data:image/png;base64,..."}
+==============================
+CURL:
+# GANTI PUT_BASE64_HERE
+curl -X POST "http://localhost:3000/api/image" -H "Content-Type: application/json" -d "{\"action\":\"compress\",\"imageBase64\":\"data:image/png;base64,PUT_BASE64_HERE\",\"quality\":80,\"format\":\"webp\"}"
+
+Response (contoh):
+{"success":true,"message":"Success","data":{"mime":"image/webp","format":"webp","pngOrImageBase64":"...","dataUrl":"data:image/webp;base64,..."}}
+
+
+==============================
+10) POST /api/pdf {"text":"..."} -> download PDF
+==============================
+CURL:
+curl -X POST "http://localhost:3000/api/pdf" -H "Content-Type: application/json" -d "{\"text\":\"Ini contoh PDF dari multi-api\"}" --output "output.pdf"
+
+Response:
+- Biner PDF (Content-Type: application/pdf)
+- Tidak berupa JSON body.
+
