@@ -1,0 +1,8 @@
+[build]
+  command = "node server.js"
+
+[[redirects]]
+  force = true
+  from = "/"
+  status = 200
+  to = "/server.js"
