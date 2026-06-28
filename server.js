@@ -100,11 +100,16 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ---- Start ----
+// ---- Start ----
 const port = serverEntry.port || 3000;
 const host = serverEntry.host || 'localhost';
 
-app.listen(port, host, () => {
-  console.log(`API running on http://${host}:${port}`);
-});
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(port, host, () => {
+    console.log(`API running on http://${host}:${port}`);
+  });
+}
 
-
+module.exports = app;
