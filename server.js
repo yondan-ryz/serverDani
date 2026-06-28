@@ -5,7 +5,8 @@ const path = require('path');
 const { errorHandler } = require('./middleware/errorHandler');
 
 // CORS: allow frontend origin (configurable via env var)
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://server-dani.vercel.app';
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://dani-multi-api.vercel.app';
+
 
 
 function corsMiddleware(req, res, next) {
